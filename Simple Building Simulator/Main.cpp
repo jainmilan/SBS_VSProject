@@ -43,7 +43,7 @@ int main()
 	printf("UPDATED: \n Number of Zones = %hhu \n Number of Rooms = %hhu \n", num_zones, num_rooms);
 	
 	/* Initialize Simulation Details */
-	uint16 duration = 2000;
+	uint16 duration = 12000;
 	uint16 time_step = 600;
 
 	printf("DEFAULT: \n Duration = %hu \n Time Step = %hu \n", duration, time_step);

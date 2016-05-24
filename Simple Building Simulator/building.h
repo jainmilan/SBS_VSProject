@@ -7,7 +7,6 @@
 #include<iostream>
 
 #include "defs.h"
-#include "SPOT.h"
 #include "weather.h"
 #include "control.h"
 #include "occupancy.h"
@@ -70,7 +69,7 @@ namespace SimpleBuildingSimulator
 		Eigen::MatrixXf Create_CoRC_CiR1T_Matrix(uint16 time_step);
 
 		float GetMixedAirTemperature(Eigen::MatrixXf TR1, Eigen::MatrixXf T_ext);
-		float GetAHUPower();
+		float GetAHUPower(float MixedAirTemperature, Eigen::MatrixXf O, float SAT_Value, Eigen::MatrixXf SAV_Zones);
 	};
 } // namespace SimpleBuildingSimulator
 #endif // !_building_H

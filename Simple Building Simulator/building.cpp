@@ -66,7 +66,7 @@ Eigen::MatrixXf Building::Create_CoEI_OLEL_Matrix(uint16 time_step) {
 Eigen::MatrixXf Building::Create_CoOI_OHL_Matrix(uint16 time_step) {
 	int total_rooms = num_zones_ * num_rooms_;
 
-	float CoOI_OHL = (time_step*CommonRoom.Q_h) / (CommonRoom.C);
+	float CoOI_OHL = (time_step*CommonRoom.Q_h) / (CommonRoom.C_);
 
 	Eigen::MatrixXf CoOI_OHL_Matrix = Eigen::MatrixXf::Identity(total_rooms, total_rooms) * CoOI_OHL;
 
@@ -76,7 +76,7 @@ Eigen::MatrixXf Building::Create_CoOI_OHL_Matrix(uint16 time_step) {
 Eigen::MatrixXf Building::Create_CoSI_SCS_Matrix(uint16 time_step) {
 	int total_rooms = num_zones_ * num_rooms_;
 
-	float CoSI_SCS = (time_step*CommonRoom.Q_s) / (CommonRoom.C);
+	float CoSI_SCS = (time_step*CommonRoom.Q_s) / (CommonRoom.C_);
 
 	Eigen::MatrixXf CoSI_SCS_Matrix = Eigen::MatrixXf::Identity(total_rooms, total_rooms) * CoSI_SCS;
 
@@ -115,9 +115,30 @@ float Building::GetMixedAirTemperature(Eigen::MatrixXf TR1, Eigen::MatrixXf T_ex
 	return MixedAirTemperature;
 }
 
-
-float Building::GetAHUPower() {
+float Building::GetAHUPower(float MixedAirTemperature, Eigen::MatrixXf O, float SAT_Value, Eigen::MatrixXf SAV_Zones) {
 	float AHUPower = 0.0f;
+
+	// Properties of Air
+	float density = CommonAir.density;					// Density of Air(kg / m3)
+	float specific_heat = CommonAir.specific_heat;		// Specific heat of Air(kJ / kg.K)
+	float Q_s = CommonRoom.Q_s;				            // Heat Load of SPOT Unit(kW)
+
+	float HeatingEfficiency = 0.9f;
+	float CoolingEfficiency = 0.9f;
+
+	float SupplyAirTemperature = SAT_Value;
+	float T_c = MixedAirTemperature;
+
+	float CoefficientHeatingPower = (density * specific_heat) / HeatingEfficiency;
+	float CoefficientCoolingPower = (density * specific_heat) / CoolingEfficiency;
+	float CoefficientFanPower = 0.094f;          // kW.s.s / Kg.Kg
+
+	float HeatingPower = SAV_Zones.sum() * (CoefficientHeatingPower*(SupplyAirTemperature - T_c));
+	float CoolingPower = SAV_Zones.sum() * (CoefficientCoolingPower*(MixedAirTemperature - T_c));
+	float FanPower = CoefficientFanPower * SAV_Zones.sum();
+	float SPOTPower = Q_s * O.sum();
+
+	AHUPower = HeatingPower + CoolingPower + FanPower + SPOTPower;
 
 	return AHUPower;
 }
@@ -191,6 +212,9 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 	Eigen::MatrixXf PowerAHU = Eigen::MatrixXf::Zero(n, 1);
 
 	// Initialization
+	ControlBox cb;
+	ControlVariables CV = cb.DefaultControl(num_zones_, num_rooms_);
+
 	T.row(0) = Eigen::VectorXf::Ones(total_rooms) * 21;
 	TR1.row(0) = T.row(0) + DeltaTR1.row(0);
 	TR2.row(0) = T.row(0) + DeltaTR2.row(0);
@@ -199,10 +223,10 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 		(0.581f *  Eigen::MatrixXf::Zero(1, total_rooms)) - (5.4668f *  Eigen::MatrixXf::Ones(1, total_rooms));
 
 	MixedAirTemperature.row(0) << GetMixedAirTemperature(TR1.row(0), T_ext.row(0));
-	PowerAHU.row(0) << 0.0f;
+	PowerAHU.row(0) << GetAHUPower(MixedAirTemperature.row(0).value(), O.row(0), CV.SAT_Value, CV.SAV_Zones);
 
 	// Print Initial Values
-	std::cout << T << std::endl;
+/*	std::cout << T << std::endl;
 	std::cout << TR1 << std::endl;
 	std::cout << TR2 << std::endl;
 
@@ -211,9 +235,9 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 
 	std::cout << PPV << std::endl;
 	std::cout << MixedAirTemperature << std::endl;
+*/
 
-	ControlBox cb;
-	ControlVariables CV;
+	std::cout << CV.SAV_Matrix << std::endl;
 
 	for (int k = 0; k < n-1; k++) {
 	
@@ -226,8 +250,8 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 		WI_OAT = T_ext.row(k) * CoWI_OAT_Matrix;
 
 		// Impact of HVAC
-		HI_CRT = T.row(k) * CV.SAV * CoHI_CRT_Matrix;
-		HI_SAT = CV.SAT * CV.SAV * CoHI_SAT_Matrix;
+		HI_CRT = T.row(k) * CV.SAV_Matrix * CoHI_CRT_Matrix;
+		HI_SAT = CV.SAT * CV.SAV_Matrix * CoHI_SAT_Matrix;
 
 		// Impact of Equipments
 		EI_OLEL = O.row(k) * CoEI_OLEL_Matrix;
@@ -260,17 +284,18 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 			(0.581f *  Eigen::MatrixXf::Zero(1, total_rooms)) - (5.4668f *  Eigen::MatrixXf::Ones(1, total_rooms));
 
 		MixedAirTemperature.row(k+1) << GetMixedAirTemperature(TR1.row(k+1), T_ext.row(k+1));
-		PowerAHU.row(k+1) << GetAHUPower();
+		PowerAHU.row(k+1) << GetAHUPower(MixedAirTemperature.row(k+1).value(), O.row(k), CV.SAT_Value, CV.SAV_Zones);
 	}
 
 	// Print Final Values
-	std::cout << T << std::endl;
-	std::cout << TR1 << std::endl;
-	std::cout << TR2 << std::endl;
+
+	//std::cout << T << std::endl;
+	//std::cout << TR1 << std::endl;
+	//std::cout << TR2 << std::endl;
 
 	std::cout << DeltaTR1 << std::endl;
 	std::cout << DeltaTR2 << std::endl;
 
-	std::cout << PPV << std::endl;
-	std::cout << MixedAirTemperature << std::endl;
+	//std::cout << PPV << std::endl;
+	//std::cout << MixedAirTemperature << std::endl;
 }
