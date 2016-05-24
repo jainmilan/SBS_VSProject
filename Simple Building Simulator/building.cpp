@@ -103,6 +103,24 @@ Eigen::MatrixXf Building::Create_CoRC_CiR1T_Matrix(uint16 time_step) {
 	return CoRC_CiR1T_Matrix;
 }
 
+float Building::GetMixedAirTemperature(Eigen::MatrixXf TR1, Eigen::MatrixXf T_ext) {
+	float MixedAirTemperature = 0.0f;
+
+	float TR1Mean = TR1.row(0).rowwise().mean().value();
+	float TextMean = T_ext.row(0).rowwise().mean().value();
+	float r = 0.8f;
+
+	MixedAirTemperature = (r * TR1Mean) + ((1-r) * TextMean);
+
+	return MixedAirTemperature;
+}
+
+
+float Building::GetAHUPower() {
+	float AHUPower = 0.0f;
+
+	return AHUPower;
+}
 void Building::Simulate(uint16 duration, uint16 time_step) {
 	int n = (duration / time_step) + 1;
 	
@@ -165,18 +183,34 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 	Eigen::MatrixXf DeltaTR1 = Eigen::MatrixXf::Zero(n, total_rooms);
 	Eigen::MatrixXf DeltaTR2 = Eigen::MatrixXf::Zero(n, total_rooms);
 
+	// PPV
+	Eigen::MatrixXf PPV = Eigen::MatrixXf::Zero(n, total_rooms);
+
+	// AHU Parameters
+	Eigen::MatrixXf MixedAirTemperature = Eigen::MatrixXf::Zero(n, 1);
+	Eigen::MatrixXf PowerAHU = Eigen::MatrixXf::Zero(n, 1);
+
 	// Initialization
 	T.row(0) = Eigen::VectorXf::Ones(total_rooms) * 21;
 	TR1.row(0) = T.row(0) + DeltaTR1.row(0);
 	TR2.row(0) = T.row(0) + DeltaTR2.row(0);
 
-	// Print Initial Temperatures
+	PPV.row(0) = (0.2466f * TR1.row(0)) - (1.4075f * Eigen::MatrixXf::Zero(1, total_rooms)) + 
+		(0.581f *  Eigen::MatrixXf::Zero(1, total_rooms)) - (5.4668f *  Eigen::MatrixXf::Ones(1, total_rooms));
+
+	MixedAirTemperature.row(0) << GetMixedAirTemperature(TR1.row(0), T_ext.row(0));
+	PowerAHU.row(0) << 0.0f;
+
+	// Print Initial Values
 	std::cout << T << std::endl;
 	std::cout << TR1 << std::endl;
 	std::cout << TR2 << std::endl;
 
 	std::cout << DeltaTR1 << std::endl;
 	std::cout << DeltaTR2 << std::endl;
+
+	std::cout << PPV << std::endl;
+	std::cout << MixedAirTemperature << std::endl;
 
 	ControlBox cb;
 	ControlVariables CV;
@@ -221,13 +255,22 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 
 		DeltaTR2.row(k + 1) = RC_CiR1T;
 		TR2.row(k + 1) = T.row(k + 1) + DeltaTR2.row(k + 1);
+
+		PPV.row(k+1) = (0.2466f * TR1.row(k+1)) - (1.4075f * Eigen::MatrixXf::Zero(1, total_rooms)) +
+			(0.581f *  Eigen::MatrixXf::Zero(1, total_rooms)) - (5.4668f *  Eigen::MatrixXf::Ones(1, total_rooms));
+
+		MixedAirTemperature.row(k+1) << GetMixedAirTemperature(TR1.row(k+1), T_ext.row(k+1));
+		PowerAHU.row(k+1) << GetAHUPower();
 	}
 
-	// Print Final Temperatures
+	// Print Final Values
 	std::cout << T << std::endl;
 	std::cout << TR1 << std::endl;
 	std::cout << TR2 << std::endl;
 
 	std::cout << DeltaTR1 << std::endl;
 	std::cout << DeltaTR2 << std::endl;
+
+	std::cout << PPV << std::endl;
+	std::cout << MixedAirTemperature << std::endl;
 }

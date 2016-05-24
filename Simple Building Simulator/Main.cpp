@@ -52,7 +52,7 @@ int main()
 	scanf_s("%d", &update);
 
 	if (update == 1) {
-		printf("Enter Simulation Duration (in minutes) : ");
+		printf("Enter Simulation Duration (in seconds) : ");
 		scanf_s("%hu", &duration);
 
 		printf("Enter Time Step (in seconds) : ");
