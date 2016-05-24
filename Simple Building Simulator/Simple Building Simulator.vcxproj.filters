@@ -30,9 +30,6 @@
     <ClCompile Include="occupancy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SPOT.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="control.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,9 +51,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="occupancy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SPOT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="control.h">

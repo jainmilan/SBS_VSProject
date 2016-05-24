@@ -1,10 +1,12 @@
+#define STRICT
+#include<windows.h>
+
+#include<string>
 #include<stdio.h>
 #include<iostream>
-#include<string>
 
 #include "defs.h"
 #include "print.h"
-
 #include "building.h"
 
 using namespace SimpleBuildingSimulator;
@@ -43,6 +45,7 @@ int main()
 	printf("UPDATED: \n Number of Zones = %hhu \n Number of Rooms = %hhu \n", num_zones, num_rooms);
 	
 	/* Initialize Simulation Details */
+	uint16 MIN2SEC = 60;
 	uint32 duration = 120000;
 	uint16 time_step = 600;
 
@@ -59,7 +62,7 @@ int main()
 		scanf_s("%hu", &time_step);
 	}
 
-	if ((time_step/60) > duration) {
+	if ((time_step/MIN2SEC)/duration > 1) {
 		printf("ERROR: Time step can't be greater than total duration of simulation");
 		return 0;
 	}

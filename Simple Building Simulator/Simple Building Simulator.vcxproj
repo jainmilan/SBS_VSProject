@@ -118,7 +118,6 @@
     <ClCompile Include="building.cpp" />
     <ClCompile Include="control.cpp" />
     <ClCompile Include="occupancy.cpp" />
-    <ClCompile Include="SPOT.cpp" />
     <ClCompile Include="weather.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="print.cpp" />
@@ -128,7 +127,6 @@
     <ClInclude Include="defs.h" />
     <ClInclude Include="building.h" />
     <ClInclude Include="occupancy.h" />
-    <ClInclude Include="SPOT.h" />
     <ClInclude Include="weather.h" />
     <ClInclude Include="print.h" />
     <ClInclude Include="resource.h" />
