@@ -35,7 +35,54 @@ struct ControlVariables ControlBox::DefaultControl(uint8 num_zones, uint8 num_ro
 	
 	cv.SAV_Matrix = GetSAVMatrix(cv.SAV_Zones, num_rooms, total_rooms);
 
-	cv.SPOT_State = Eigen::MatrixXi::Ones(1, total_rooms);
+	cv.SPOT_CurrentState = Eigen::MatrixXi::Ones(1, total_rooms);
+
+	return cv;
+}
+
+struct ControlVariables ControlBox::ReactiveControl(uint8 num_zones, uint8 num_rooms, Eigen::MatrixXf TR1, 
+	Eigen::MatrixXf O, int k, Eigen::MatrixXi SPOT_PreviousState) {
+
+	int total_rooms = num_zones * num_rooms;
+
+	struct ControlVariables cv;
+
+	cv.SAT_Value = 30;
+
+	cv.SAT = Eigen::MatrixXf::Ones(1, total_rooms) * cv.SAT_Value;
+
+	cv.SAV_Zones = Eigen::MatrixXf::Ones(num_zones, 1) * 0.05f;
+
+	cv.SAV_Matrix = GetSAVMatrix(cv.SAV_Zones, num_rooms, total_rooms);
+
+	cv.SPOT_CurrentState = SPOT_PreviousState;
+
+	std::cout << cv.SPOT_CurrentState(0, 0) << " " << O.col(0).value() << " " << TR1.col(0).value() << std::endl;
+
+	if (k == 0) {
+		return cv;
+	}
+
+	for (size_t i = 0, nCols = cv.SPOT_CurrentState.cols(); i < nCols; i++) {
+		// If room is occupied
+		if (O.col(i).value() == 1) {
+			if ((TR1.col(i).value() > 23) && (SPOT_PreviousState.col(i).value() == 1)) {
+				cv.SPOT_CurrentState(0, i) = 0;
+			}
+			else if ((TR1.col(i).value() < 21) && (SPOT_PreviousState.col(i).value() == 0)) {
+				cv.SPOT_CurrentState(0, i) = 1;
+			}
+		}
+		// If room is unoccupied
+		else if (O.col(i).value() == 0) {
+			if ((TR1.col(i).value() > 28) && (SPOT_PreviousState.col(i).value() == 1)) {
+				cv.SPOT_CurrentState(0, i) = 0;
+			}
+			else if ((TR1.col(i).value() < 18) && (SPOT_PreviousState.col(i).value() == 0)) {
+				cv.SPOT_CurrentState(0, i) = 1;
+			}
+		}
+	}
 
 	return cv;
 }

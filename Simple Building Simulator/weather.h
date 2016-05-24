@@ -13,7 +13,7 @@ namespace SimpleBuildingSimulator {
 	public:
 		Weather();
 		~Weather();
-		Eigen::MatrixXf GetWeatherForecast(uint16 duration, uint16 time_step, uint8 num_zones, uint8 num_rooms);
+		Eigen::MatrixXf GetWeatherForecast(uint32 duration, uint16 time_step, uint8 num_zones, uint8 num_rooms);
 	private:
 
 	};

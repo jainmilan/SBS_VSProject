@@ -48,7 +48,7 @@ namespace SimpleBuildingSimulator
 		void set_num_zones(uint8 num_zones) { num_zones_ = num_zones; }
 		void set_num_rooms(uint8 num_rooms) { num_rooms_ = num_rooms; }
 
-		void Simulate(uint16 duration, uint16 time_step);
+		void Simulate(uint32 duration, uint16 time_step, int control_type);
 	private:
 		uint8 num_zones_ = 1;			// Number of VAV zones in the building
 		uint8 num_rooms_ = 1;			// Number of rooms in the building

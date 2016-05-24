@@ -12,7 +12,7 @@ namespace SimpleBuildingSimulator {
 	public:
 		Occupants();
 		~Occupants();
-		Eigen::MatrixXi GetOccupancyForecast(uint16 duration, uint16 time_step, uint8 num_zones, uint8 num_rooms);
+		Eigen::MatrixXi GetOccupancyForecast(uint32 duration, uint16 time_step, uint8 num_zones, uint8 num_rooms);
 	private:
 
 	};

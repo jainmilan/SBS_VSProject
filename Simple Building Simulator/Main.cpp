@@ -43,17 +43,17 @@ int main()
 	printf("UPDATED: \n Number of Zones = %hhu \n Number of Rooms = %hhu \n", num_zones, num_rooms);
 	
 	/* Initialize Simulation Details */
-	uint16 duration = 12000;
+	uint32 duration = 120000;
 	uint16 time_step = 600;
 
-	printf("DEFAULT: \n Duration = %hu \n Time Step = %hu \n", duration, time_step);
+	printf("DEFAULT: \n Duration = %u \n Time Step = %hu \n", duration, time_step);
 
 	printf("Do you want to change? (1-Yes, 0-No): ");
 	scanf_s("%d", &update);
 
 	if (update == 1) {
 		printf("Enter Simulation Duration (in seconds) : ");
-		scanf_s("%hu", &duration);
+		scanf_s("%u", &duration);
 
 		printf("Enter Time Step (in seconds) : ");
 		scanf_s("%hu", &time_step);
@@ -64,8 +64,27 @@ int main()
 		return 0;
 	}
 
-	printf("Updated: \n Duration = %hu \n Time Step = %hu \n", duration, time_step);
+	printf("UPDATED: \n Duration = %u \n Time Step = %hu \n", duration, time_step);
 
+	int control_type = 1;
+
+	printf("DEFAULT: SPOT Always On \n");
+
+	printf("Do you want to change? (1-Yes, 0-No): ");
+	scanf_s("%d", &update);
+
+	if (update == 1) {
+		printf("Enter Control Type (1 - AlwaysOn, 2 - Reactive) : ");
+		scanf_s("%d", &control_type);
+	}
+
+	if (control_type == 2) {
+		printf("Updated: Reactive Control \n");
+	}
+	else {
+		printf("Updated: SPOT Always On \n");
+	}
+	
 	/*
 	Eigen::MatrixXf m1 = dc.Create_CoWI_CRT_Matrix(time_step);
 	std::cout << m1 << std::endl;
@@ -118,7 +137,8 @@ int main()
 	std::cout << m12 << std::endl;
 	printf("\n");
 	*/
-	dc.Simulate(duration, time_step);
+	
+	dc.Simulate(duration, time_step, control_type);
 
 	system("pause");
 	return 0;

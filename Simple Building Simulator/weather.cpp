@@ -10,7 +10,7 @@ Weather::~Weather()
 {
 }
 
-Eigen::MatrixXf Weather::GetWeatherForecast(uint16 duration, uint16 time_step, uint8 num_zones, uint8 num_rooms) {
+Eigen::MatrixXf Weather::GetWeatherForecast(uint32 duration, uint16 time_step, uint8 num_zones, uint8 num_rooms) {
 	int n = (duration / time_step) + 1;
 	int total_rooms = num_zones * num_rooms;
 

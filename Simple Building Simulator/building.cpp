@@ -142,7 +142,7 @@ float Building::GetAHUPower(float MixedAirTemperature, Eigen::MatrixXf O, float 
 
 	return AHUPower;
 }
-void Building::Simulate(uint16 duration, uint16 time_step) {
+void Building::Simulate(uint32 duration, uint16 time_step, int control_type) {
 	int n = (duration / time_step) + 1;
 	
 	int total_rooms = num_zones_ * num_rooms_;
@@ -212,18 +212,22 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 	Eigen::MatrixXf PowerAHU = Eigen::MatrixXf::Zero(n, 1);
 
 	// Initialization
+	int k = 0; 
 	ControlBox cb;
 	ControlVariables CV = cb.DefaultControl(num_zones_, num_rooms_);
 
-	T.row(0) = Eigen::VectorXf::Ones(total_rooms) * 21;
-	TR1.row(0) = T.row(0) + DeltaTR1.row(0);
-	TR2.row(0) = T.row(0) + DeltaTR2.row(0);
+	Eigen::MatrixXi SPOT_State = Eigen::MatrixXi::Ones(n, total_rooms);
+	SPOT_State.row(k) = CV.SPOT_CurrentState;
 
-	PPV.row(0) = (0.2466f * TR1.row(0)) - (1.4075f * Eigen::MatrixXf::Zero(1, total_rooms)) + 
+	T.row(k) = Eigen::VectorXf::Ones(total_rooms) * 21;
+	TR1.row(k) = T.row(k) + DeltaTR1.row(k);
+	TR2.row(k) = T.row(k) + DeltaTR2.row(k);
+
+	PPV.row(k) = (0.2466f * TR1.row(k)) - (1.4075f * Eigen::MatrixXf::Zero(1, total_rooms)) +
 		(0.581f *  Eigen::MatrixXf::Zero(1, total_rooms)) - (5.4668f *  Eigen::MatrixXf::Ones(1, total_rooms));
-
-	MixedAirTemperature.row(0) << GetMixedAirTemperature(TR1.row(0), T_ext.row(0));
-	PowerAHU.row(0) << GetAHUPower(MixedAirTemperature.row(0).value(), O.row(0), CV.SAT_Value, CV.SAV_Zones);
+	
+	MixedAirTemperature.row(k) << GetMixedAirTemperature(TR1.row(k), T_ext.row(k));
+	PowerAHU.row(k) << GetAHUPower(MixedAirTemperature.row(k).value(), O.row(k), CV.SAT_Value, CV.SAV_Zones);
 
 	// Print Initial Values
 /*	std::cout << T << std::endl;
@@ -237,11 +241,24 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 	std::cout << MixedAirTemperature << std::endl;
 */
 
-	std::cout << CV.SAV_Matrix << std::endl;
+	//std::cout << CV.SAV_Matrix << std::endl;
+	//std::cout << SPOT_State << std::endl;
 
-	for (int k = 0; k < n-1; k++) {
+	for (k = 0; k < n-1; k++) {
 	
-		CV = cb.DefaultControl(num_zones_, num_rooms_);
+		switch (control_type)
+		{
+		case 1:
+			CV = cb.DefaultControl(num_zones_, num_rooms_);
+			break;
+		case 2:
+			CV = cb.ReactiveControl(num_zones_, num_rooms_, TR1.row(k), O.row(k), k, SPOT_State.row(k));
+			break;
+		default:
+			break;
+		}
+
+		SPOT_State.row(k + 1) = CV.SPOT_CurrentState;
 
 		/* Temperature Change in the Room Due to HVAC */
 
@@ -264,7 +281,7 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 		RC_CiRT = DeltaTR1.row(k) * CoRC_CiRT_Matrix;
 
 		// Impact of SPOT
-		SI_SCS = CV.SPOT_State.cast<float>() * CoSI_SCS_Matrix;
+		SI_SCS = CV.SPOT_CurrentState.cast<float>() * CoSI_SCS_Matrix;
 
 		// Impact of Occupants
 		OI_OHL = O.row(k) * CoOI_OHL_Matrix;
@@ -289,12 +306,12 @@ void Building::Simulate(uint16 duration, uint16 time_step) {
 
 	// Print Final Values
 
-	//std::cout << T << std::endl;
+	//std::cout << SPOT_State << std::endl;
 	//std::cout << TR1 << std::endl;
 	//std::cout << TR2 << std::endl;
 
-	std::cout << DeltaTR1 << std::endl;
-	std::cout << DeltaTR2 << std::endl;
+	//std::cout << DeltaTR1 << std::endl;
+	//std::cout << DeltaTR2 << std::endl;
 
 	//std::cout << PPV << std::endl;
 	//std::cout << MixedAirTemperature << std::endl;
