@@ -1,5 +1,5 @@
-#ifndef _building_H
-	#define _building_H
+#ifndef _Building_H
+	#define _Building_H
 
 #pragma once
 

@@ -1,4 +1,4 @@
-#include "weather.h"
+#include "Weather.h"
 
 using namespace SimpleBuildingSimulator;
 

@@ -18,19 +18,22 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="building.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="print.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="weather.cpp">
+    <ClCompile Include="TestGNUIOSTREAM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="occupancy.cpp">
+    <ClCompile Include="Weather.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="control.cpp">
+    <ClCompile Include="Occupancy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControlBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Building.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,19 +44,19 @@
     <ClInclude Include="defs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="building.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="print.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="weather.h">
+    <ClInclude Include="Weather.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="occupancy.h">
+    <ClInclude Include="Occupancy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="control.h">
+    <ClInclude Include="ControlBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Building.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

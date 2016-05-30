@@ -23,7 +23,7 @@ namespace SimpleBuildingSimulator {
 		ControlBox();
 		~ControlBox();
 		struct ControlVariables DefaultControl(uint8 num_zones, uint8 num_rooms);
-		struct ControlVariables ControlBox::ReactiveControl(uint8 num_zones, uint8 num_rooms, Eigen::MatrixXf TR1,
+		struct ControlVariables ReactiveControl(uint8 num_zones, uint8 num_rooms, Eigen::MatrixXf TR1,
 			Eigen::MatrixXf O, int k, Eigen::MatrixXi SPOT_PreviousState);
 	private:
 		Eigen::MatrixXf GetSAVMatrix(Eigen::MatrixXf SAV_Zones, int num_rooms, int total_rooms);

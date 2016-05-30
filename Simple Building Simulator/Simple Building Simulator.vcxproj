@@ -72,7 +72,7 @@
     <IncludePath>C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\qwt-6.1.2\qwt-6.1.2;C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\EIGENDIR;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\boost_1_61_0\boost_1_61_0;C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\gnuplot-iostream-master\gnuplot-iostream-master;C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\EIGENDIR;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Local\Local Workspace\Libs\gnuplot-iostream-master\gnuplot-iostream-master;C:\Local\Local Workspace\Libs\boost_1_61_0\boost_1_61_0;C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\EIGENDIR;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -87,6 +87,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Local\Local Workspace\Libs\boost_1_61_0\boost_1_61_0\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -115,19 +118,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="building.cpp" />
-    <ClCompile Include="control.cpp" />
-    <ClCompile Include="occupancy.cpp" />
-    <ClCompile Include="weather.cpp" />
+    <ClCompile Include="Building.cpp" />
+    <ClCompile Include="ControlBox.cpp" />
+    <ClCompile Include="Occupancy.cpp" />
+    <ClCompile Include="TestGNUIOSTREAM.cpp" />
+    <ClCompile Include="Weather.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="print.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="control.h" />
+    <ClInclude Include="ControlBox.h" />
     <ClInclude Include="defs.h" />
-    <ClInclude Include="building.h" />
-    <ClInclude Include="occupancy.h" />
-    <ClInclude Include="weather.h" />
+    <ClInclude Include="Building.h" />
+    <ClInclude Include="Occupancy.h" />
+    <ClInclude Include="Weather.h" />
     <ClInclude Include="print.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

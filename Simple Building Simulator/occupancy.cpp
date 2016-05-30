@@ -1,4 +1,4 @@
-#include "occupancy.h"
+#include "Occupancy.h"
 
 using namespace SimpleBuildingSimulator;
 

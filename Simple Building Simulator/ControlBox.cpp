@@ -1,4 +1,4 @@
-#include "control.h"
+#include "ControlBox.h"
 
 using namespace SimpleBuildingSimulator;
 
