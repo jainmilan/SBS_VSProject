@@ -69,7 +69,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\qwt-6.1.2\qwt-6.1.2;C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\EIGENDIR;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\EIGENDIR;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Local\Local Workspace\Libs\gnuplot-iostream-master\gnuplot-iostream-master;C:\Local\Local Workspace\Libs\boost_1_61_0\boost_1_61_0;C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\EIGENDIR;$(IncludePath)</IncludePath>
@@ -121,7 +121,6 @@
     <ClCompile Include="Building.cpp" />
     <ClCompile Include="ControlBox.cpp" />
     <ClCompile Include="Occupancy.cpp" />
-    <ClCompile Include="TestGNUIOSTREAM.cpp" />
     <ClCompile Include="Weather.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="print.cpp" />
