@@ -1,9 +1,11 @@
+#include "defs.h"
+#include "Weather.h"
+#include "ControlBox.h"
+#include "Occupancy.h"
+
 #include "Building.h"
 
 using namespace SimpleBuildingSimulator;
-
-Building::Room CommonRoom;
-Building::Air CommonAir;
 
 Building::Building()
 {
@@ -123,15 +125,15 @@ float Building::GetAHUPower(float MixedAirTemperature, Eigen::MatrixXf SPOT_Curr
 	float specific_heat = CommonAir.specific_heat;		// Specific heat of Air(kJ / kg.K)
 	float Q_s = CommonRoom.Q_s;				            // Heat Load of SPOT Unit(kW)
 
-	float HeatingEfficiency = 0.9f;
-	float CoolingEfficiency = 0.9f;
+	float HeatingEfficiency = CommonAHU.HeatingEfficiency;
+	float CoolingEfficiency = CommonAHU.CoolingEfficiency;
 
 	float SupplyAirTemperature = SAT_Value;
 	float T_c = MixedAirTemperature;
 
 	float CoefficientHeatingPower = (density * specific_heat) / HeatingEfficiency;
 	float CoefficientCoolingPower = (density * specific_heat) / CoolingEfficiency;
-	float CoefficientFanPower = 0.094f;          // kW.s.s / Kg.Kg
+	float CoefficientFanPower = CommonRoom.fan_coef;          // kW.s.s / Kg.Kg
 
 	float HeatingPower = SAV_Zones.sum() * (CoefficientHeatingPower*(SupplyAirTemperature - T_c));
 	float CoolingPower = SAV_Zones.sum() * (CoefficientCoolingPower*(MixedAirTemperature - T_c));
@@ -223,8 +225,8 @@ void Building::Simulate(uint32 duration, uint16 time_step, int control_type) {
 	TR1.row(k) = T.row(k) + DeltaTR1.row(k);
 	TR2.row(k) = T.row(k) + DeltaTR2.row(k);
 
-	PPV.row(k) = (0.2466f * TR1.row(k)) - (1.4075f * Eigen::MatrixXf::Zero(1, total_rooms)) +
-		(0.581f *  Eigen::MatrixXf::Zero(1, total_rooms)) - (5.4668f *  Eigen::MatrixXf::Ones(1, total_rooms));
+	PPV.row(k) = (PMV_Params.P1 * TR1.row(k)) - (PMV_Params.P2 * Eigen::MatrixXf::Zero(1, total_rooms)) +
+		(PMV_Params.P3 *  Eigen::MatrixXf::Zero(1, total_rooms)) - (PMV_Params.P4 *  Eigen::MatrixXf::Ones(1, total_rooms));
 	
 	MixedAirTemperature.row(k) << GetMixedAirTemperature(TR1.row(k), T_ext.row(k));
 	float temp_var = GetAHUPower(MixedAirTemperature.row(k).value(), CV.SPOT_CurrentState.cast<float>().row(k), CV.SAT_Value, CV.SAV_Zones);
@@ -254,6 +256,9 @@ void Building::Simulate(uint32 duration, uint16 time_step, int control_type) {
 			break;
 		case 2:
 			CV = cb.ReactiveControl(num_zones_, num_rooms_, TR1.row(k), O.row(k), k, SPOT_State.row(k));
+			break;
+		case 3:
+			CV = cb.MPCControl(num_zones_, num_rooms_, duration, time_step, CommonAir, CommonRoom, CommonAHU, PMV_Params);
 			break;
 		default:
 			break;
@@ -298,8 +303,8 @@ void Building::Simulate(uint32 duration, uint16 time_step, int control_type) {
 		DeltaTR2.row(k + 1) = RC_CiR1T;
 		TR2.row(k + 1) = T.row(k + 1) + DeltaTR2.row(k + 1);
 
-		PPV.row(k+1) = (0.2466f * TR1.row(k+1)) - (1.4075f * Eigen::MatrixXf::Zero(1, total_rooms)) +
-			(0.581f *  Eigen::MatrixXf::Zero(1, total_rooms)) - (5.4668f *  Eigen::MatrixXf::Ones(1, total_rooms));
+		PPV.row(k+1) = (PMV_Params.P1 * TR1.row(k+1)) - (PMV_Params.P2 * Eigen::MatrixXf::Zero(1, total_rooms)) +
+			(PMV_Params.P3 *  Eigen::MatrixXf::Zero(1, total_rooms)) - (PMV_Params.P4 *  Eigen::MatrixXf::Ones(1, total_rooms));
 
 		MixedAirTemperature.row(k+1) << GetMixedAirTemperature(TR1.row(k+1), T_ext.row(k+1));
 		temp_var = GetAHUPower(MixedAirTemperature.row(k + 1).value(), CV.SPOT_CurrentState.cast<float>(), CV.SAT_Value, CV.SAV_Zones);

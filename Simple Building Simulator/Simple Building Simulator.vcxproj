@@ -69,7 +69,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\EIGENDIR;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Local\Local Workspace\VC++\Simple Building Simulator\include\amplapi32\include;C:\Local\Local Workspace\VC++\Simple Building Simulator\include\EIGENDIR;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Local\Local Workspace\Libs\gnuplot-iostream-master\gnuplot-iostream-master;C:\Local\Local Workspace\Libs\boost_1_61_0\boost_1_61_0;C:\Local\Local Workspace\VC++\Simple Building Simulator\Simple Building Simulator\EIGENDIR;$(IncludePath)</IncludePath>
@@ -80,6 +80,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>C:\Local\AMPL\AMPL32\amplapi32\lib\ampl1.2.2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
