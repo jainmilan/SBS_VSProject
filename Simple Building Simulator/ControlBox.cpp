@@ -284,7 +284,7 @@ struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, int
 		Eigen::MatrixXf T_Outside = Eigen::MatrixXf::Ones(total_rooms, tinstances) * 5;
 		double *pTOutsideA = new double[tinstances];
 		for (int i = 0; i<tinstances; i++) {
-			pTOutsideA[i] = T_Outside.row(0)(i);
+			pTOutsideA[i] = T_Outside(0, i);
 		}
 		ampl::Parameter pTOutside = ampl.getParameter("T_Outside");
 		pTOutside.setValues(pTOutsideA, tinstances);
@@ -325,12 +325,50 @@ struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, int
 
 		// Resolve and display objective
 		ampl.solve();
-		ampl::Objective totalcost = ampl.getObjective("total_cost");
+		ampl::Objective totalcost = ampl.getObjective("total_power");
 
+		// Get final value of Supply Air Temperature (SAT)
+		ampl::Variable vSAT = ampl.getVariable("SAT");
+		ampl::DataFrame dfSAT = vSAT.getValues();
+
+		cv.SAT_Value = dfSAT.getRowByIndex(0)[1].dbl();
+		cv.SAT = Eigen::MatrixXf::Ones(1, total_rooms) * cv.SAT_Value;
+
+		std::cout << "SAT Values Are: " << cv.SAT << std::endl;
+
+		// BUG: Model returns single value of SAV, however it should be for each zone
+		// Get final value of Supply Air Volume (SAV)
+		ampl::Variable vSAV = ampl.getVariable("SAV");
+		ampl::DataFrame dfSAV = vSAV.getValues();
+
+		cv.SAV_Zones = Eigen::MatrixXf::Ones(num_zones, 1) * dfSAV.getRowByIndex(0)[1].dbl();
+		cv.SAV_Matrix = GetSAVMatrix(cv.SAV_Zones, num_rooms, total_rooms);
+
+		std::cout << "SAV Values Are: " << cv.SAV_Matrix << std::endl;
+
+		// Get final value of SPOT Status
+		ampl::Variable vSPOTStatus = ampl.getVariable("SPOT_Status");
+		ampl::DataFrame dfSPOTStatus = vSPOTStatus.getValues();
+
+		size_t nRows = dfSPOTStatus.getNumRows();
+		cv.SPOT_CurrentState = Eigen::MatrixXi::Ones(1, total_rooms);
+		for (size_t i = 0, nCols = cv.SPOT_CurrentState.cols(); i < nCols; i++) {
+			cv.SPOT_CurrentState(0, i) = dfSPOTStatus.getRowByIndex(i*nRows + 0)[2].dbl(); // 2 is the column of returned dataframe
+		}
+			
+		std::cout << "SPOT Status: " << cv.SPOT_CurrentState << std::endl;
 		std::cout << "Objective Is: " << totalcost.value() << std::endl;
 	}
 	catch (const std::exception &exc)
 	{
+		cv.SAT_Value = 30;
+		cv.SAT = Eigen::MatrixXf::Ones(1, total_rooms) * cv.SAT_Value;
+
+		cv.SAV_Zones = Eigen::MatrixXf::Ones(num_zones, 1) * 0.05f;
+		cv.SAV_Matrix = GetSAVMatrix(cv.SAV_Zones, num_rooms, total_rooms);
+
+		cv.SPOT_CurrentState = Eigen::MatrixXi::Ones(1, total_rooms);
+
 		std::cerr << exc.what();
 	}
 	
