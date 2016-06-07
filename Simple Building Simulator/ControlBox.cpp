@@ -23,7 +23,7 @@ Eigen::MatrixXf ControlBox::GetSAVMatrix(Eigen::MatrixXf SAV_Zones, int num_room
 }
 
 
-struct ControlVariables ControlBox::DefaultControl(uint8 num_zones, uint8 num_rooms) {
+struct ControlVariables ControlBox::DefaultControl(int num_zones, int num_rooms) {
 	int total_rooms = num_zones * num_rooms;
 
 	struct ControlVariables cv;
@@ -41,7 +41,7 @@ struct ControlVariables ControlBox::DefaultControl(uint8 num_zones, uint8 num_ro
 	return cv;
 }
 
-struct ControlVariables ControlBox::ReactiveControl(uint8 num_zones, uint8 num_rooms, Eigen::MatrixXf TR1, 
+struct ControlVariables ControlBox::ReactiveControl(int num_zones, int num_rooms, Eigen::MatrixXf TR1, 
 	Eigen::MatrixXf O, int k, Eigen::MatrixXi SPOT_PreviousState) {
 
 	int total_rooms = num_zones * num_rooms;
@@ -88,7 +88,7 @@ struct ControlVariables ControlBox::ReactiveControl(uint8 num_zones, uint8 num_r
 	return cv;
 }
 
-struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, int duration, int time_step, 
+struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, long int duration, int time_step, 
 	Building::Air air_params, Building::Room room_params, Building::AHU ahu_params, Building::PMV_Model pmv_params) {
 	
 	// Initialize AMPL and Control Variables
@@ -97,8 +97,8 @@ struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, int
 
 	// Generic Parameters
 	int tau = time_step;
-	int tinstances = duration / tau;
-	const long int total_rooms = num_zones * num_rooms;
+	long int tinstances = duration / tau;
+	int total_rooms = num_zones * num_rooms;
 
 	// Building Parameters
 	double C = room_params.C;
@@ -141,7 +141,7 @@ struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, int
 
 		// Initialize Parameters - Basic Parameters
 		ampl::Parameter pDuration = ampl.getParameter("duration");
-		double pDurationA[] = { tinstances };
+		double pDurationA[] = { (double) tinstances };
 		pDuration.setValues(pDurationA, 1);
 
 		ampl::Parameter pTotalRooms = ampl.getParameter("total_rooms");
@@ -331,7 +331,7 @@ struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, int
 		ampl::Variable vSAT = ampl.getVariable("SAT");
 		ampl::DataFrame dfSAT = vSAT.getValues();
 
-		cv.SAT_Value = dfSAT.getRowByIndex(0)[1].dbl();
+		cv.SAT_Value = (float) dfSAT.getRowByIndex(0)[1].dbl();
 		cv.SAT = Eigen::MatrixXf::Ones(1, total_rooms) * cv.SAT_Value;
 
 		std::cout << "SAT Values Are: " << cv.SAT << std::endl;
@@ -341,7 +341,7 @@ struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, int
 		ampl::Variable vSAV = ampl.getVariable("SAV");
 		ampl::DataFrame dfSAV = vSAV.getValues();
 
-		cv.SAV_Zones = Eigen::MatrixXf::Ones(num_zones, 1) * dfSAV.getRowByIndex(0)[1].dbl();
+		cv.SAV_Zones = Eigen::MatrixXf::Ones(num_zones, 1) * (float) dfSAV.getRowByIndex(0)[1].dbl();
 		cv.SAV_Matrix = GetSAVMatrix(cv.SAV_Zones, num_rooms, total_rooms);
 
 		std::cout << "SAV Values Are: " << cv.SAV_Matrix << std::endl;
@@ -353,7 +353,7 @@ struct ControlVariables ControlBox::MPCControl(int num_zones, int num_rooms, int
 		size_t nRows = dfSPOTStatus.getNumRows();
 		cv.SPOT_CurrentState = Eigen::MatrixXi::Ones(1, total_rooms);
 		for (size_t i = 0, nCols = cv.SPOT_CurrentState.cols(); i < nCols; i++) {
-			cv.SPOT_CurrentState(0, i) = dfSPOTStatus.getRowByIndex(i*nRows + 0)[2].dbl(); // 2 is the column of returned dataframe
+			cv.SPOT_CurrentState(0, i) = (int) dfSPOTStatus.getRowByIndex(i*nRows + 0)[2].dbl(); // 2 is the column of returned dataframe
 		}
 			
 		std::cout << "SPOT Status: " << cv.SPOT_CurrentState << std::endl;
