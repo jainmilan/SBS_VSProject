@@ -1,9 +1,10 @@
 #include "defs.h"
 #include "Weather.h"
-#include "ControlBox.h"
 #include "Occupancy.h"
+#include "ControlBox.h"
 
 #include "Building.h"
+#include "WriteOutput.h"
 
 using namespace SimpleBuildingSimulator;
 
@@ -350,4 +351,8 @@ void Building::Simulate(long int duration, int time_step, int control_type) {
 
 	//std::cout << PPV << std::endl;
 	//std::cout << MixedAirTemperature << std::endl;
+
+	WriteOutput writer;
+	writer.WriteOutputCSV(duration, time_step, num_zones_, num_rooms_, T, TR1, TR2, DeltaTR1, DeltaTR2, PPV, MixedAirTemperature, PowerAHU, O, T_ext,
+		SPOT_State, CommonRoom, CommonAHU, CommonAir, PMV_Params);
 }

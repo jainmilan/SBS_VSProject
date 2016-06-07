@@ -127,6 +127,7 @@
     <ClCompile Include="Weather.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="print.cpp" />
+    <ClCompile Include="WriteOutput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ControlBox.h" />
@@ -136,6 +137,7 @@
     <ClInclude Include="Weather.h" />
     <ClInclude Include="print.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="WriteOutput.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Simple Building Simulator.rc" />
