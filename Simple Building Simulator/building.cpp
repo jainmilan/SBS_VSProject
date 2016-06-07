@@ -287,7 +287,7 @@ void Building::Simulate(long int duration, int time_step, int control_type) {
 			CV = cb.ReactiveControl(num_zones_, num_rooms_, TR1.row(k), O.row(k), k, SPOT_State.row(k));
 			break;
 		case 3:
-			CV = cb.MPCControl(num_zones_, num_rooms_, duration, time_step, CommonAir, CommonRoom, CommonAHU, PMV_Params);
+			CV = cb.MPCControl(num_zones_, num_rooms_, duration, time_step, CommonAir, CommonRoom, CommonAHU, PMV_Params, T_ext, O, TR2.row(0), DeltaTR1.row(k));
 			break;
 		default:
 			break;

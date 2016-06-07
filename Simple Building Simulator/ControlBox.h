@@ -27,7 +27,8 @@ namespace SimpleBuildingSimulator {
 		struct ControlVariables ReactiveControl(int num_zones, int num_rooms, Eigen::MatrixXf TR1,
 			Eigen::MatrixXf O, int k, Eigen::MatrixXi SPOT_PreviousState);
 		struct ControlVariables MPCControl(int num_zones, int num_rooms, long int duration, int time_step,
-			Building::Air air_params, Building::Room room_params, Building::AHU ahu_params, Building::PMV_Model pmv_params);
+			Building::Air air_params, Building::Room room_params, Building::AHU ahu_params, Building::PMV_Model pmv_params,
+			Eigen::MatrixXf T_Outside, Eigen::MatrixXf Occupancy, Eigen::MatrixXf TNoSPOTInit, Eigen::MatrixXf DeltaTSPOTInit);
 	private:
 		Eigen::MatrixXf GetSAVMatrix(Eigen::MatrixXf SAV_Zones, int num_rooms, int total_rooms);
 	};

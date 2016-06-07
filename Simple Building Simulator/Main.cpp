@@ -92,7 +92,7 @@ int main()
 	}
 		
 	dc.Simulate(duration, time_step, control_type);
-
+	printf("Simulation Complete");
 	system("pause");
 	return 0;
 }
